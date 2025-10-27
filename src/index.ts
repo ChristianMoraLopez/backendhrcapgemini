@@ -29,5 +29,5 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log(`Backend running on http://localhost:${port}`);
+  console.log(`Backend running on ${process.env.BASE_URL}`);
 });

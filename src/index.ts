@@ -39,4 +39,7 @@ app.get('/health', (req: Request, res: Response) => {
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Backend running on http://0.0.0.0:${port}`);
+}).on('error', (err: any) => {
+  console.error('Error starting server:', err);
+  process.exit(1);
 });

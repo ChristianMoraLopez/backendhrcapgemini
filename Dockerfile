@@ -27,6 +27,8 @@ RUN npm ci --include=dev
 # Copy application code
 COPY . .
 
+EXPOSE 3000
+
 # Build application
 RUN npm run build
 

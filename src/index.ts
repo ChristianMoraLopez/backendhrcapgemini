@@ -7,7 +7,7 @@ import supabaseAuthRoutes from './routes/supabaseAuth';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 8080;
 
 // Initialize Supabase client with service_role key for admin access
 const supabase = createClient(
@@ -29,5 +29,5 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log(`Backend running on ${process.env.BASE_URL}`);
+ console.log(`✅ Backend running on http://0.0.0.0:${port}`);
 });

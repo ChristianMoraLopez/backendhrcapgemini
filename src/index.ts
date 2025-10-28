@@ -33,17 +33,15 @@ const supabase = createClient(
 );
 
 // === MIDDLEWARE ===
-app.use((req: Request, res: Response) => {
-  res.status(404).json({
-    error: 'Ruta no encontrada',
-    path: req.originalUrl,
-    method: req.method,
-  });
-});
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGIN || '*',
+  credentials: true,
+}));
+app.use(express.json({ limit: '10mb' }));
 
 // === RUTAS ===
 
-// === RUTA RAÍZ: HTML con Documentación ===
+// Ruta raíz: HTML con documentación
 app.get('/', (req: Request, res: Response) => {
   try {
     const htmlPath = join(__dirname, 'views', 'api-docs.html');
@@ -54,6 +52,7 @@ app.get('/', (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error interno' });
   }
 });
+
 // Health check
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
@@ -62,8 +61,8 @@ app.get('/health', (req: Request, res: Response) => {
 // Rutas de autenticación
 app.use('/api/supabase/auth', supabaseAuthRoutes(supabase));
 
-// === 404 HANDLER (CORREGIDO: app.all en lugar de app.use('*')) ===
-app.all('*', (req: Request, res: Response) => {
+// === 404 HANDLER (SOLO UNO, SIN app.all('*')) ===
+app.use((req: Request, res: Response) => {
   res.status(404).json({
     error: 'Ruta no encontrada',
     path: req.originalUrl,

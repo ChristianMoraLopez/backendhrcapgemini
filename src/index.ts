@@ -84,9 +84,13 @@ app.use((err: any, req: Request, res: Response, next: Function) => {
 
 // === INICIAR SERVIDOR ===
 const server = app.listen(port, '0.0.0.0', () => {
-  console.log(`Backend corriendo en http://0.0.0.0:${port}`);
-  console.log(`Ruta raíz: http://localhost:${port}`);
-  console.log(`Health: http://localhost:${port}/health`);
+  const host = process.env.FLY_APP_NAME
+    ? `https://${process.env.FLY_APP_NAME}.fly.dev`
+    : `http://0.0.0.0:${port}`;
+
+  console.log(`Backend corriendo en ${host}`);
+  console.log(`Ruta raíz: ${host}`);
+  console.log(`Health: ${host}/health`);
 });
 
 server.on('error', (err: any) => {

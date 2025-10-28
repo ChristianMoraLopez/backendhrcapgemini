@@ -33,11 +33,13 @@ const supabase = createClient(
 );
 
 // === MIDDLEWARE ===
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN || '*',
-  credentials: true,
-}));
-app.use(express.json({ limit: '10mb' }));
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
+    error: 'Ruta no encontrada',
+    path: req.originalUrl,
+    method: req.method,
+  });
+});
 
 // === RUTAS ===
 

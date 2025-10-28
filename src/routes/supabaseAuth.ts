@@ -4,54 +4,93 @@ import { SupabaseClient } from '@supabase/supabase-js';
 export default (supabase: SupabaseClient) => {
   const router = require('express').Router();
 
-  // GET: List all users
+  // === LISTAR USUARIOS ===
   router.get('/users', async (req: Request, res: Response) => {
     try {
       const { data, error } = await supabase.auth.admin.listUsers();
       if (error) throw error;
-      res.status(200).json({ success: true, data: data.users, total: data.users.length });
+
+      res.json({
+        success: true,
+        data: data.users.map((u: any) => ({
+          id: u.id,
+          email: u.email,
+          created_at: u.created_at,
+          user_metadata: u.user_metadata,
+          role: u.user_metadata?.role || 'employee',
+        })),
+        total: data.users.length,
+      });
     } catch (error: any) {
-      console.error('Error fetching users:', error);
+      console.error('Error listando usuarios:', error);
       res.status(500).json({ error: error.message });
     }
   });
 
-  // GET: Get a user by ID
-  router.get('/users/:id', async (req: Request, res: Response) => {
-    const { id } = req.params;
-    try {
-      const { data, error } = await supabase.auth.admin.getUserById(id);
-      if (error) throw error;
-      if (!data.user) return res.status(404).json({ error: 'User not found' });
-      res.status(200).json({ success: true, data: data.user });
-    } catch (error: any) {
-      console.error(`Error fetching user ${id}:`, error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // POST: Create a new user
+  // === CREAR USUARIO (SIGNUP) ===
   router.post('/users', async (req: Request, res: Response) => {
-    const { email, password, email_confirm = true, user_metadata } = req.body;
+    const { email, password, email_confirm = true, user_metadata = {} } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email y password son obligatorios' });
+    }
+
     try {
+      console.log('Creando usuario:', { email, hasMetadata: !!Object.keys(user_metadata).length });
+
       const { data, error } = await supabase.auth.admin.createUser({
         email,
         password,
         email_confirm,
         user_metadata,
       });
+
       if (error) throw error;
-      res.status(201).json({ success: true, data: data.user });
+
+      res.status(201).json({
+        success: true,
+        data: {
+          user: {
+            id: data.user.id,
+            email: data.user.email,
+            user_metadata: data.user.user_metadata,
+          },
+        },
+      });
     } catch (error: any) {
-      console.error('Error creating user:', error);
+      console.error('Error creando usuario:', error);
+
+      // Errores comunes
+      if (error.message.includes('duplicate')) {
+        return res.status(409).json({ error: 'El usuario ya existe' });
+      }
+      if (error.message.includes('Password')) {
+        return res.status(400).json({ error: 'Contraseña inválida (mínimo 6 caracteres)' });
+      }
+
       res.status(500).json({ error: error.message });
     }
   });
 
-  // PUT: Update a user by ID
+  // === OBTENER USUARIO POR ID ===
+  router.get('/users/:id', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+      const { data, error } = await supabase.auth.admin.getUserById(id);
+      if (error) throw error;
+      if (!data.user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+      res.json({ success: true, data: data.user });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // === ACTUALIZAR USUARIO ===
   router.put('/users/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const { email, password, user_metadata } = req.body;
+
     try {
       const { data, error } = await supabase.auth.admin.updateUserById(id, {
         email,
@@ -59,23 +98,22 @@ export default (supabase: SupabaseClient) => {
         user_metadata,
       });
       if (error) throw error;
-      if (!data.user) return res.status(404).json({ error: 'User not found' });
-      res.status(200).json({ success: true, data: data.user });
+      if (!data.user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+      res.json({ success: true, data: data.user });
     } catch (error: any) {
-      console.error(`Error updating user ${id}:`, error);
       res.status(500).json({ error: error.message });
     }
   });
 
-  // DELETE: Delete a user by ID
+  // === ELIMINAR USUARIO ===
   router.delete('/users/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
       const { error } = await supabase.auth.admin.deleteUser(id);
       if (error) throw error;
-      res.status(200).json({ success: true });
+      res.json({ success: true, message: 'Usuario eliminado' });
     } catch (error: any) {
-      console.error(`Error deleting user ${id}:`, error);
       res.status(500).json({ error: error.message });
     }
   });

@@ -221,6 +221,47 @@ export default (supabase: SupabaseClient) => {
     }
   });
 
+  // === ELIMINAR USUARIO POR EMAIL ===
+router.delete('/users/:email', async (req: Request, res: Response) => {
+  const { email } = req.params;
+  
+  try {
+    console.log('[DELETE] Eliminando usuario:', email);
+
+    // Buscar usuario por email
+    const { data: users, error: listError } = await supabase.auth.admin.listUsers();
+    
+    if (listError) throw listError;
+
+    const userToDelete = users.users.find((u: any) => 
+      u.email?.toLowerCase() === email.toLowerCase()
+    );
+
+    if (!userToDelete) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Usuario no encontrado en Supabase' 
+      });
+    }
+
+    // Eliminar usuario
+    const { error: deleteError } = await supabase.auth.admin.deleteUser(userToDelete.id);
+    
+    if (deleteError) throw deleteError;
+
+    console.log('✅ Usuario eliminado de Supabase:', email);
+
+    res.json({ 
+      success: true, 
+      message: 'Usuario eliminado correctamente' 
+    });
+
+  } catch (error: any) {
+    console.error('[DELETE] Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
   // === REFRESH TOKEN === ⬅️ BONUS: Renovar token
   router.post('/refresh', async (req: Request, res: Response) => {
     const { refresh_token } = req.body;

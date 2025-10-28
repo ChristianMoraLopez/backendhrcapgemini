@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import supabaseAuthRoutes from './routes/supabaseAuth';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 // Cargar .env solo en desarrollo
 if (process.env.NODE_ENV !== 'production') {
@@ -39,26 +41,17 @@ app.use(express.json({ limit: '10mb' }));
 
 // === RUTAS ===
 
-// Ruta raíz
+// === RUTA RAÍZ: HTML con Documentación ===
 app.get('/', (req: Request, res: Response) => {
-  res.json({
-    message: 'Backend HR Capgemini API',
-    version: '1.0.0',
-    status: 'running',
-    endpoints: {
-      health: '/health',
-      auth: {
-        list_users: 'GET /api/supabase/auth/users',
-        create_user: 'POST /api/supabase/auth/users',
-        get_user: 'GET /api/supabase/auth/users/:id',
-        update_user: 'PUT /api/supabase/auth/users/:id',
-        delete_user: 'DELETE /api/supabase/auth/users/:id',
-      },
-    },
-    docs: 'https://github.com/tu-proyecto/backend-hrcapgemini',
-  });
+  try {
+    const htmlPath = join(__dirname, 'views', 'api-docs.html');
+    const html = readFileSync(htmlPath, 'utf-8');
+    res.send(html);
+  } catch (error) {
+    console.error('Error cargando HTML:', error);
+    res.status(500).json({ error: 'Error interno' });
+  }
 });
-
 // Health check
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });

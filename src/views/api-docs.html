@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backend HR Capgemini API</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #f0f4f8;
+      line-height: 1.6;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .version {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    .status {
+      display: inline-block;
+      background: #28a745;
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+    .endpoint {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin: 1rem 0;
+      border-left: 5px solid #00c6ff;
+    }
+    .method {
+      display: inline-block;
+      background: #007bff;
+      color: white;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 0.8rem;
+      min-width: 60px;
+      text-align: center;
+    }
+    .get { background: #28a745; }
+    .post { background: #ffc107; color: #212529; }
+    .put { background: #fd7e14; }
+    .delete { background: #dc3545; }
+    .path {
+      font-family: 'Courier New', monospace;
+      color: #00eeff;
+      margin: 0.5rem 0;
+      font-weight: bold;
+    }
+    .desc { font-size: 0.95rem; opacity: 0.9; }
+    .docs {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 1rem;
+    }
+    .docs a {
+      color: #00c6ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .docs a:hover { text-decoration: underline; }
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Backend HR Capgemini</h1>
+      <p class="version">Versión 1.0.0</p>
+      <span class="status">Running</span>
+    </header>
+
+    <section>
+      <h2>Endpoints Disponibles</h2>
+
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <div class="path" data-path="/health">/health</div>
+        <div class="desc">Verifica el estado del servidor</div>
+      </div>
+
+      <h3>Autenticación (Admin)</h3>
+
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <div class="path" data-path="/api/supabase/auth/users">/api/supabase/auth/users</div>
+        <div class="desc">Lista todos los usuarios</div>
+      </div>
+
+      <div class="endpoint">
+        <span class="method post">POST</span>
+        <div class="path" data-path="/api/supabase/auth/users">/api/supabase/auth/users</div>
+        <div class="desc">Crea un nuevo usuario (email + password)</div>
+      </div>
+
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <div class="path" data-path="/api/supabase/auth/users/:id">/api/supabase/auth/users/:id</div>
+        <div class="desc">Obtiene un usuario por ID</div>
+      </div>
+
+      <div class="endpoint">
+        <span class="method put">PUT</span>
+        <div class="path" data-path="/api/supabase/auth/users/:id">/api/supabase/auth/users/:id</div>
+        <div class="desc">Actualiza email, contraseña o metadata</div>
+      </div>
+
+      <div class="endpoint">
+        <span class="method delete">DELETE</span>
+        <div class="path" data-path="/api/supabase/auth/users/:id">/api/supabase/auth/users/:id</div>
+        <div class="desc">Elimina un usuario permanentemente</div>
+      </div>
+    </section>
+
+    <div class="docs">
+      Documentación completa: <a href="https://github.com/tu-proyecto/backend-hrcapgemini" target="_blank">GitHub</a>
+    </div>
+
+    <footer>
+      Desplegado en <strong>Fly.io</strong> • <span id="timestamp"></span>
+    </footer>
+  </div>
+
+  <script>
+    // Inyectar base URL dinámicamente
+    const baseUrl = window.location.origin;
+    document.querySelectorAll('[data-path]').forEach(el => {
+      el.textContent = baseUrl + el.getAttribute('data-path');
+    });
+    document.getElementById('timestamp').textContent = new Date().toLocaleString('es-ES');
+  </script>
+</body>
+</html>

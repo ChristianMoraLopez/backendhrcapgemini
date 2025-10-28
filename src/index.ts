@@ -11,7 +11,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Validar variables de entorno críticas
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('ERROR: Faltan SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en .env');
+  console.error('ERROR: Faltan SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY');
   process.exit(1);
 }
 
@@ -30,16 +30,16 @@ const supabase = createClient(
   }
 );
 
-// Middleware
+// === MIDDLEWARE ===
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN || '*', // Cambia en producción
+  origin: process.env.ALLOWED_ORIGIN || '*',
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
 
 // === RUTAS ===
 
-// Ruta raíz (evita "Cannot GET /")
+// Ruta raíz
 app.get('/', (req: Request, res: Response) => {
   res.json({
     message: 'Backend HR Capgemini API',
@@ -64,21 +64,25 @@ app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-// Rutas de autenticación (admin)
+// Rutas de autenticación
 app.use('/api/supabase/auth', supabaseAuthRoutes(supabase));
 
-// 404 para rutas no encontradas
-app.use('*', (req: Request, res: Response) => {
-  res.status(404).json({ error: 'Ruta no encontrada', path: req.originalUrl });
+// === 404 HANDLER (CORREGIDO: app.all en lugar de app.use('*')) ===
+app.all('*', (req: Request, res: Response) => {
+  res.status(404).json({
+    error: 'Ruta no encontrada',
+    path: req.originalUrl,
+    method: req.method,
+  });
 });
 
-// Manejo global de errores
+// === MANEJO GLOBAL DE ERRORES ===
 app.use((err: any, req: Request, res: Response, next: Function) => {
   console.error('Error no manejado:', err);
   res.status(500).json({ error: 'Error interno del servidor' });
 });
 
-// Iniciar servidor
+// === INICIAR SERVIDOR ===
 const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Backend corriendo en http://0.0.0.0:${port}`);
   console.log(`Ruta raíz: http://localhost:${port}`);
